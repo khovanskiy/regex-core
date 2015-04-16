@@ -17,11 +17,11 @@ public class Grammar {
         }
     }
 
-    private Set<String> terminals = new HashSet<>();
-    private Set<String> nonterminals = new HashSet<>();
-    private List<Rule> rules = new ArrayList<>();
-    private Map<String, Set<String>> first = new HashMap<>();
-    private Map<String, Set<String>> follow = new HashMap<>();
+    private Set<String> terminals = new HashSet<String>();
+    private Set<String> nonterminals = new HashSet<String>();
+    private List<Rule> rules = new ArrayList<Rule>();
+    private Map<String, Set<String>> first = new HashMap<String, Set<String>>();
+    private Map<String, Set<String>> follow = new HashMap<String, Set<String>>();
     private String start;
 
     /**
@@ -87,7 +87,7 @@ public class Grammar {
         first.clear();
         // 1st part
         for (String term : terminals) {
-            HashSet<String> set = new HashSet<>();
+            HashSet<String> set = new HashSet<String>();
             set.add(term);
             first.put(term, set);
         }

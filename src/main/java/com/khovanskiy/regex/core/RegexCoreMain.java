@@ -1,6 +1,9 @@
 package com.khovanskiy.regex.core;
 
+import com.martiansoftware.jsap.*;
+
 import java.io.ByteArrayInputStream;
+import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.Map;
 import java.util.Set;
@@ -30,9 +33,27 @@ public class RegexCoreMain {
         grammar.add("N", "(R)");
         grammar.add("N", "c");
 
+        SimpleJSAP jsap = new SimpleJSAP("regex-core", "Parse and build tree with regex grammar",
+                new Parameter[] {
+                        new FlaggedOption("input").setRequired(JSAP.REQUIRED).setShortFlag('i').setHelp("Input"),
+                        new FlaggedOption("output").setStringParser(JSAP.STRING_PARSER).setRequired(JSAP.REQUIRED).setShortFlag('o').setHelp("Filename of output where visualization will be saved")
+                });
+
+        JSAPResult bundle = jsap.parse(args);
+        if (!bundle.success()) {
+            System.exit(-1);
+        }
+
         System.out.println(grammar);
 
-        System.out.println("FIRST set");
+        RegexParser parser = new RegexParser();
+        Tree tree = parser.parse(bundle.getString("input"));
+        System.out.println(tree);
+
+        TreeVisualizer visualizer = new TreeVisualizer(tree, bundle.getString("output"));
+        visualizer.render();
+
+        /*System.out.println("FIRST set");
         for (Map.Entry<String, Set<String>> entry : grammar.getFirstSet().entrySet()) {
             System.out.println(entry.getKey() + " " + entry.getValue());
         }
@@ -40,20 +61,23 @@ public class RegexCoreMain {
         System.out.println("FOLLOW set");
         for (Map.Entry<String, Set<String>> entry : grammar.getFollowSet().entrySet()) {
             System.out.println(entry.getKey() + " " + entry.getValue());
-        }
+        }*/
 
 
 
-        String example = "(a)";
+        /*String example = "(((c|c)*abc)|((c|c)*abc))*";
         InputStream is = new ByteArrayInputStream(example.getBytes());
-        /*LexicalAnalyzer lex = new LexicalAnalyzer(is);
+        LexicalAnalyzer lex = new LexicalAnalyzer(is);
 
         while (lex.hasNext()) {
             System.out.println("Token " + lex.nextToken());
-        }*/
+        }
 
         RegexParser parser = new RegexParser();
         Tree tree = parser.parse(is);
         System.out.println(tree);
+
+        TreeVisualizer visualizer = new TreeVisualizer(tree, "output.html");
+        visualizer.render();*/
     }
 }

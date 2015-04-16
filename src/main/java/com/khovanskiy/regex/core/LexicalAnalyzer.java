@@ -40,6 +40,14 @@ public class LexicalAnalyzer extends InputStream {
     }
 
     /**
+     * Gets current value of token
+     *
+     * @return current value
+     */
+    public String getCurrentValue() {
+        return (char)currentChar+ "";
+    }
+    /**
      * Reads and returns next token
      *
      * @return next token
@@ -94,13 +102,7 @@ public class LexicalAnalyzer extends InputStream {
         }
     }
 
-    /**
-     * Reads and returns next char
-     *
-     * @return next char
-     * @throws ParseException
-     */
-    public int nextChar() throws ParseException {
+    private int nextChar() throws ParseException {
         ++currentPosition;
         try {
             currentChar = is.read();

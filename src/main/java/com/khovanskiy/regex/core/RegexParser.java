@@ -1,5 +1,7 @@
 package com.khovanskiy.regex.core;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.text.ParseException;
 
@@ -10,10 +12,16 @@ public class RegexParser {
 
     private LexicalAnalyzer lex;
 
-    public Tree parse(InputStream is) throws ParseException {
+    public Tree parse(InputStream is) throws ParseException, IOException {
         lex = new LexicalAnalyzer(is);
         lex.nextToken();
-        return R();
+        Tree tree = R();
+        lex.close();
+        return tree;
+    }
+
+    public Tree parse(String in) throws ParseException, IOException {
+        return parse(new ByteArrayInputStream(in.getBytes()));
     }
 
     private Tree R() throws ParseException {
@@ -23,7 +31,7 @@ public class RegexParser {
             case OPEN_BRACKET:
                 return new Tree("R", T(), D());
             default:
-                throw new AssertionError();
+                throw new ParseException("Unexpected char", lex.getCurrentPosition());
         }
     }
 
@@ -32,12 +40,12 @@ public class RegexParser {
         switch (lex.getCurrentToken()) {
             case OR:
                 lex.nextToken();
-                return new Tree("D", new Tree("c"), T(), D());
+                return new Tree("D", new Tree("|"), T(), D());
             case CLOSE_BRACKET:
             case END:
                 return new Tree("D", new Tree("eps"));
             default:
-                throw new AssertionError();
+                throw new ParseException("Unexpected char", lex.getCurrentPosition());
         }
     }
 
@@ -48,7 +56,7 @@ public class RegexParser {
             case OPEN_BRACKET:
                 return new Tree("T", F(), P());
             default:
-                throw new AssertionError();
+                throw new ParseException("Unexpected char", lex.getCurrentPosition());
         }
     }
 
@@ -63,7 +71,7 @@ public class RegexParser {
             case END:
                 return new Tree("P", new Tree("eps"));
             default:
-                throw new AssertionError();
+                throw new ParseException("Unexpected char", lex.getCurrentPosition());
         }
     }
 
@@ -74,7 +82,7 @@ public class RegexParser {
             case OPEN_BRACKET:
                 return new Tree("F", N(), W());
             default:
-                throw new AssertionError();
+                throw new ParseException("Unexpected char", lex.getCurrentPosition());
         }
     }
 
@@ -91,23 +99,26 @@ public class RegexParser {
             case END:
                 return new Tree("W", new Tree("eps"));
             default:
-                throw new AssertionError();
+                throw new ParseException("Unexpected char", lex.getCurrentPosition());
         }
     }
 
     private Tree N() throws ParseException {
         //System.out.println("N " + lex.getCurrentToken());
         switch (lex.getCurrentToken()) {
-            case OPEN_BRACKET:
+            case OPEN_BRACKET: {
                 lex.nextToken();
                 Tree temp = R();
                 lex.nextToken();
                 return new Tree("N", new Tree("("), temp, new Tree(")"));
-            case CHAR:
+            }
+            case CHAR: {
+                Tree temp = new Tree(lex.getCurrentValue());
                 lex.nextToken();
-                return new Tree("N", new Tree("c"));
+                return new Tree("N", temp);
+            }
             default:
-                throw new AssertionError();
+                throw new ParseException("Unexpected char", lex.getCurrentPosition());
         }
     }
 }
