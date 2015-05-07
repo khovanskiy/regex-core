@@ -1,6 +1,5 @@
 package com.khovanskiy.regex.core;
 
-import junit.framework.Assert;
 import org.junit.Test;
 
 import java.io.IOException;
